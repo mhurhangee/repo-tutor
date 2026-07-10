@@ -1,0 +1,42 @@
+---
+name: review
+description: Formally review the student's submitted PR (or drill answers) with line comments, a verdict, and a scorecard. Use whenever a PR needs marking, the user asks for their submission to be reviewed or graded, or after /submit — even if they don't type /review.
+---
+
+# Review
+
+Switch to review mode (announce it). Read `references/rubric.md` before
+marking anything.
+
+## Isolation
+
+Grading must be blind to how much help was given in chat. Spawn a subagent
+(Task tool) for the actual assessment, giving it ONLY: the PR diff, the
+project brief, the visible tests, the reference solution if the pack has
+one, and the rubric. Do not pass conversation history.
+
+## The subagent's job
+
+1. `gh pr diff <n>` to fetch the changes; read the brief and tests.
+2. Run the test suite against the student's branch. Record results.
+3. Line comments via `gh pr review` / `gh pr comment`: specific, kind,
+   actionable. Ask questions where a design choice is defensible-but-odd
+   rather than declaring it wrong — the reply thread is part of the
+   assessment.
+4. Verdict: `--approve` or `--request-changes`, with a scorecard in the
+   review body per the rubric.
+
+## After the subagent returns
+
+1. Mirror the scorecard to `state/reviews/<branch>-pr<n>.md` and commit
+   with prefix `review:`.
+2. Summarize the verdict to the student in two sentences. If changes were
+   requested, name the single most important one to tackle first.
+3. Append outcomes to `state/staging/jots.md` (concepts that were
+   strong/weak, per topic).
+4. The student responds on the PR and merges when approved. You never merge.
+
+## No-GitHub fallback
+
+Same process, but write the full review (line-referenced comments +
+scorecard) to `state/reviews/<branch>.md` instead of posting to a PR.

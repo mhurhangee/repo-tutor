@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "deny": [
+      "Write(workspace/**)",
+      "Edit(workspace/**)",
+      "Bash(git merge:*)",
+      "Bash(gh pr merge:*)"
+    ],
+    "ask": [
+      "Write(state/topics/**)",
+      "Edit(state/topics/**)",
+      "Write(state/topics.yaml)",
+      "Edit(state/topics.yaml)",
+      "Write(state/syllabus.md)",
+      "Edit(state/syllabus.md)",
+      "Write(session.md)",
+      "Edit(session.md)"
+    ],
+    "allow": [
+      "Read(**)",
+      "Write(state/staging/**)",
+      "Write(state/reviews/**)",
+      "Write(content/**)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
+    ]
+  }
+}
