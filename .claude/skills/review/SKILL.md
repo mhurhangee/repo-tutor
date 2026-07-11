@@ -12,8 +12,8 @@ marking anything.
 
 Grading must be blind to how much help was given in chat. Spawn a subagent
 (Task tool) for the actual assessment, giving it ONLY: the PR diff, the
-project brief, the visible tests, the reference solution if the pack has
-one, and the rubric. Do not pass conversation history.
+project brief, the visible tests, the reference solution from `tutor/solutions/<name>/` if
+one exists, and the rubric. Do not pass conversation history.
 
 ## The subagent's job
 

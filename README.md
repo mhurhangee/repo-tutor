@@ -1,6 +1,6 @@
 # repo-tutor
 
-**A coding tutor that lives in a git repo — and never writes your code.**
+**A coding tutor that lives in a git repo — and never touches your code invisibly.**
 
 You learn to program by building real projects under code review. The tutor
 designs projects, drills you, and reviews your pull requests like a senior
@@ -11,9 +11,11 @@ Your `git log` is your learning record.
 
 1. **The tutor never touches your code invisibly.** By default it hints,
    questions, and points at concepts — your hands stay on the keyboard.
-   If you're truly stuck and ask, any hands-on fix requires your approval,
-   lands as its own `tutor:` commit, and is one `git revert` from gone.
-   Your history shows exactly where help happened.
+   Its only workspace writes are the project handout (scaffolds you
+   approve file-by-file and commit yourself) and, if you're truly stuck
+   and ask, a smallest-possible fix that lands as its own `tutor:` commit
+   — one `git revert` from gone. Your history shows exactly where help
+   happened.
 2. **Assessment is real code review.** You branch, commit, and open a PR.
    The tutor reviews with line comments and a verdict. You respond, revise,
    and merge — practicing the loop professionals live in.
@@ -58,9 +60,9 @@ Between commands, just talk — ask for hints, explanations, or a mode switch.
 ## Layout
 
 ```
-workspace/   YOURS — your code, your branches, your drill answers
-tutor/       ITS — content/ (projects & quizzes), state/ (its memory of
-             you: plain markdown, gated writes), archive/
+workspace/   YOURS — projects (brief, tests, code), your drill answers
+tutor/       ITS — solutions/ (spoilers, kept out of your way), state/
+             (its memory of you: plain markdown, gated writes), archive/
 .claude/     the tutor's brain: constitution, skills, guardrails
 dev/         hacking on the tutor itself → start at dev/ARCHITECTURE.md
 ```

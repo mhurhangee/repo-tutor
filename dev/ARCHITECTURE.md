@@ -20,7 +20,7 @@ A coding tutor that is a git repository. Clone it, run `claude`, and work. The r
 
 ## 2. Repo layout
 
-**Template vs instance:** the public repo is a GitHub template — state zones ship empty, `session.md` doesn't ship at all (`/onboard` creates it, so upstream never conflicts with personal copies). A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/content/`.
+**Template vs instance:** the public repo is a GitHub template — state zones ship empty, `session.md` doesn't ship at all (`/onboard` creates it, so upstream never conflicts with personal copies). A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/solutions/`, `tutor/archive/`.
 
 Three zones by **ownership**, plus config:
 
@@ -35,14 +35,13 @@ repo-tutor/
 │       ├── start/ onboard/ new-project/ session-end/ drill/ submit/ review/ teach/
 │       └── (each: SKILL.md + optional references/)
 ├── workspace/                 # ZONE: student work — tutor writes only via
-│   │                          #   the rule-1 ritual (ask-gated, tutor: commit)
-│   ├── projects/<name>/       #   instantiated from scaffolds; brief, tests,
+│   │                          #   rule 1's two cases (always ask-gated)
+│   ├── projects/<name>/       #   scaffolded via rule 1(a); brief, tests,
 │   │                          #   code, data all live here — one directory
 │   └── quickfire/             #   student's drill answers
 ├── tutor/                     # ZONE: everything tutor-owned, one namespace
-│   ├── content/               #   authoring workshop / pristine packs / solutions
-│   │   ├── projects/<pack>/   #     scaffold/ (incl. brief.md), solutions/
-│   │   └── quizzes/           #     drill records (written after, never before)
+│   ├── solutions/<name>/      #   reference solutions & answer keys —
+│   │                          #   the one thing git history can't hold
 │   ├── state/                 #   tutor memory — gated writes only
 │   │   ├── topics.yaml        #     numeric index: cluster → level/assessed
 │   │   ├── profile.md         #     who they are (created at onboarding)
@@ -50,11 +49,11 @@ repo-tutor/
 │   │   ├── topics/<cluster>.md#     ledger: confidence / evidence / gaps / next
 │   │   ├── reviews/           #     mirror of PR verdicts + scorecards
 │   │   └── staging/           #     mid-session jots, consumed by /session-end
-│   └── archive/               #   completed projects & burned quizzes
+│   └── archive/               #   history: drill records, retired solutions
 ├── dev/                       # working ON the tutor (this doc, dev/CLAUDE.md)
 ```
 
-Why zones: ownership is answered by the first path segment — `workspace/` is the student, `tutor/` is the tutor — and the guardrails reduce to two short rules: *workspace writes only via the rule-1 ritual* and *durable memory only via session-end consolidation*. Post-instantiation the student's daily loop lives entirely in `workspace/projects/<name>/`; `tutor/` is backstage.
+Why zones: ownership is answered by the first path segment — `workspace/` is the student, `tutor/` is the tutor — and the guardrails reduce to two short rules: *workspace writes only via rule 1's two cases* and *durable memory only via session-end consolidation*. The student's daily loop lives entirely in `workspace/projects/<name>/`; `tutor/` is backstage.
 
 ## 3. Modes
 
@@ -63,16 +62,16 @@ The agent is always in exactly one mode, recorded in `session.md`. Mode switches
 | Mode | Purpose | May write to |
 |---|---|---|
 | teach  | explain, hint, discuss        | tutor/state/staging/ |
-| drill  | quickfire Q&A                 | tutor/content/quizzes/, tutor/state/staging/ |
-| author | design projects & tests       | tutor/content/, tutor/state/staging/ |
+| drill  | quickfire Q&A                 | tutor/state/staging/; record to tutor/archive/quizzes/ after |
+| author | design projects & tests       | workspace scaffold (rule 1a), tutor/solutions/, tutor/state/staging/ |
 | review | mark a PR / drill answers     | PR comments, tutor/state/reviews/, tutor/state/staging/ |
 | plan   | syllabus work                 | tutor/state/syllabus.md (proposal → student approves), tutor/state/staging/ |
 
-Always-on rules (all modes): workspace writes only via the rule-1 ritual (explicit request, ask-gated, clean tree, smallest edit, `tutor:` commit, logged); never produce the solution the student is meant to write (hint ladder: question → concept → pseudocode → stop) except via an explicit "I give up" flow, which is logged to staging as a gap; remember things by appending to `tutor/state/staging/`, never by editing `tutor/state/topics/` directly; the student merges PRs, never the tutor.
+Always-on rules (all modes): workspace writes only via rule 1's two cases (ask-gated handout scaffolds; explicit-request stuck interventions — clean tree, smallest edit, `tutor:` commit, logged); never produce the solution the student is meant to write (hint ladder: question → concept → pseudocode → stop) except via an explicit "I give up" flow, which is logged to staging as a gap; remember things by appending to `tutor/state/staging/`, never by editing `tutor/state/topics/` directly; the student merges PRs, never the tutor.
 
 ## 4. Enforcement: four rings
 
-1. **Settings ask/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and all durable memory is ask-gated — the student's approval is the enforcement, consistent across the whole design. Only merging (`git merge` / `gh pr merge`) is hard-denied. Workspace interventions additionally follow the rule-1 ritual: explicit request only, clean tree first, smallest edit, separate `tutor:` commit — a wall hides nothing because nothing happens; a ledger shows everything, and the intervention record feeds consolidation.
+1. **Settings ask/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and all durable memory is ask-gated — the student's approval is the enforcement, consistent across the whole design. Only merging (`git merge` / `gh pr merge`) is hard-denied. Workspace writes are limited to rule 1's two cases; interventions additionally require explicit request, clean tree first, smallest edit, separate `tutor:` commit — a wall hides nothing because nothing happens; a ledger shows everything, and the intervention record feeds consolidation.
 2. **PreToolUse hook** (optional, stage 2+): would catch workspace writes attempted via shell (`echo >`, `sed -i`, heredocs) that path-based deny rules miss. Hooks are local executable code, so this bends the no-runtime principle — add only if real sessions show ring 1 leaking, and keep it to something shell-portable.
 3. **The student as memory gate**: durable memory paths are on the settings `ask` list, so every proposed edit to `tutor/state/topics/`, `tutor/state/syllabus.md`, or `session.md` surfaces as a diff the student approves. Combined with `tutor/state/topics/_TEMPLATE.md` and the session-end skill's append-only evidence rule, this addresses the schema-drift failure mode (the one claude-tutor documents and patched post-hoc) with zero runtime.
 4. **CI (GitHub Actions)** (stage 3): lints topic files against the template, validates pack manifests, commit-prefix conventions, and layout integrity on every push — deterministic enforcement that runs server-side, costing the student no local setup. (Pattern validated by claude-dojo's log-before-tick CI check.)
@@ -123,12 +122,12 @@ claude -p "/review PR 4" --allowedTools "Read,Bash(gh pr *),Bash(pytest*)" \
 
 ## 8. Content: bespoke first, packs later
 
-**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in `tutor/state/topics/`: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The tutor authors the scaffold — brief.md included, so the handout is self-contained — plus logic-free stubs and failing-for-the-right-reason tests into `tutor/content/projects/`; the *student* instantiates into `workspace/` and creates the branch (the handout ritual: teaches branch workflow, and afterwards their entire loop is one directory). Placement assessment at onboarding seeds initial topic confidences through the same consolidation gate, so authoring is calibrated from session one.
+**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in the index and profile: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The student branches; the tutor then writes the scaffold — brief.md, logic-free stubs, failing-for-the-right-reason tests — directly into `workspace/projects/<name>/` under rule 1(a): each file ask-gated, the student approving and making the start commit. No pristine copy is kept — the start commit IS the pristine copy; reset is `git checkout`. Reference solutions go to `tutor/solutions/<name>/`, the one thing git history can't provide (spoilers must exist outside the student's directory). Placement at onboarding seeds initial confidences through the consolidation gate, so authoring is calibrated from session one.
 
 **Packs and registry are a distribution layer (stage 4)** — a way to share briefs that worked, not the primary content source:
 
 - Registry = second repo; each pack = directory with `manifest.json` (name, type, topics, difficulty) + payload; `index.json` for search.
-- Install = an `/add-pack` skill whose bundled script sparse-fetches the pack into `tutor/content/` and validates the manifest. Community contribution = PR to registry; pack CI runs tests against the bundled reference solution.
+- Install = an `/add-pack` skill: fetch the pack, write its scaffold into `workspace/` via the same rule-1(a) handout as bespoke projects, solution into `tutor/solutions/`. Community contribution = PR to registry; pack CI runs tests against the bundled reference solution.
 - Solutions ship in packs, honor system (a self-directed learner cheats only themselves). Revisit if this ever becomes classroom-grade.
 - Skills are packs too: swap in a harsher `review` rubric the same way. Customization = edit files or install packs.
 - Distribution note: plugin-marketplace packaging (as claude-tutor uses) doesn't fit the core product — a plugin can't ship the workspace you live in. The repo *is* the product; a plugin form could later exist for the skills alone.

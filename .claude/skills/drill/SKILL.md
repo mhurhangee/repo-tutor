@@ -32,6 +32,6 @@ pick the cluster with the lowest level or stalest `assessed` date; read its
 ## After
 
 Write the record — questions asked + outcomes, now safe to store — to
-`tutor/content/quizzes/<topic>-<date>.md`. Append results to
+`tutor/archive/quizzes/<topic>-<date>.md`. Append results to
 `tutor/state/staging/jots.md`: topic, score, which concepts missed, hint levels
 needed. This feeds consolidation — be specific.

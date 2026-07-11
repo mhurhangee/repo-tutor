@@ -47,9 +47,8 @@ a diff for them to approve. Propose carefully.
    next focus (one sentence), topics touched. (Create it if this was the
    first session.)
 
-7. Housekeeping: move burned or completed quiz files from
-   `tutor/content/quizzes/` to `tutor/archive/`, and completed projects' content
-   packs likewise, if the jots flag any.
+7. Housekeeping: perform any archive moves the jots flag — e.g. a
+   completed project's `tutor/solutions/<name>/` into `tutor/archive/`.
 
 8. Clear staging: empty `tutor/state/staging/jots.md` (keep the file).
 

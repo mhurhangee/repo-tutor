@@ -28,7 +28,7 @@ ONLY after marking the previous answer — never pre-write a bank (a
 pre-written set can't adapt, and a file the student can open is burned).
 Step difficulty up on hits, down on misses; drill-skill formats and
 marking rules. Afterwards, write the record (questions asked + outcomes)
-to `tutor/content/quizzes/placement-<date>.md` as history. Skippable — some
+to `tutor/archive/quizzes/placement-<date>.md` as history. Skippable — some
 prefer calibrating through real work.
 
 ## 4. Propose — don't write

@@ -5,10 +5,11 @@ before structural changes — it is the source of truth for design decisions.
 
 ## Invariants — never break these
 
-1. The tutor never writes in `workspace/` invisibly: interventions are
-   explicit-request-only, ask-gated, clean-tree-first, smallest-possible,
-   and committed separately under `tutor:`. Every enforcement ring must
-   preserve the visibility, and the write stays ask-gated in settings.
+1. Workspace writes are visible-only and limited to constitution rule 1's
+   two cases (scaffold handout; explicit-request stuck intervention).
+   Both stay ask-gated in settings; interventions stay clean-tree-first,
+   smallest-possible, separately committed under `tutor:`. Reference
+   solutions never enter workspace or chat.
 2. `tutor/state/topics/`, `tutor/state/syllabus.md`, and `session.md` are written only
    during /session-end (or /start onboarding), always following
    `tutor/state/topics/_TEMPLATE.md`, always permission-prompted so the student
