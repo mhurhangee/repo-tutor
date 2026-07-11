@@ -2,6 +2,7 @@
 #
 # RULES (enforced by the session-end skill + your approval at the ask-gate):
 # - Cluster granularity: python.control-flow, not python.for-loops.
+# - No evidence, no entry. An untested cluster is absent (unknown), never 0.
 # - A level may only change when a dated evidence bullet in the matching
 #   state/topics/<cluster>.md justifies it. No evidence, no change.
 # - New clusters are proposed at session-end or onboarding only, after

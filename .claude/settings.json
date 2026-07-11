@@ -11,6 +11,8 @@
       "Edit(state/topics/**)",
       "Write(state/topics.yaml)",
       "Edit(state/topics.yaml)",
+      "Write(state/profile.md)",
+      "Edit(state/profile.md)",
       "Write(state/syllabus.md)",
       "Edit(state/syllabus.md)",
       "Write(session.md)",

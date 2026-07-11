@@ -39,6 +39,7 @@ repo-tutor/
 │   └── quizzes/
 ├── state/                     # ZONE: tutor memory — gated writes only
 │   ├── topics.yaml            #   numeric index: cluster → level/assessed/evidence-count
+│   ├── profile.md             #   who they are (created at onboarding; not shipped)
 │   ├── syllabus.md
 │   ├── topics/<concept>.md    #   fixed template: confidence / evidence / gaps / next
 │   ├── reviews/               #   mirror of PR verdicts + scorecards
@@ -91,11 +92,14 @@ student: respond in thread, push fixes, loop → student merges
 
 ## 6. Memory
 
-Two layers, one rule binding them:
+Three layers, one rule binding the first two:
 
 - `state/topics.yaml` — the numeric index. Dynamic cluster-granularity tree (`python.control-flow`, `tooling.git`); demonstration-anchored levels 0–5 (4 requires a reviewed PR, 5 requires teaching it back); schema and anchors live as comments in the shipped skeleton. Machine-readable: drill targeting, project calibration, and any future gamification read this, not prose.
 - `state/topics/<cluster>.md` — the evidence ledger: dated append-only bullets, gaps, next. Student-editable by design; corrections are signal.
-- **The binding rule: a level changes only when a new evidence bullet justifies it, and the proposed edit cites the bullet.** A number without a receipt is vibes; the ledger keeps the index honest.
+- **The binding rule: a level changes only when a new evidence bullet justifies it, and the proposed edit cites the bullet.** A number without a receipt is vibes; the ledger keeps the index honest. No evidence, no entry: untested clusters are absent, never 0.
+- `state/profile.md` — who the student is, not what they know: background, goals, failure modes to design against, working preferences. Session zero showed onboarding's richest output is non-topic knowledge; without this layer it leaks into ungated stores.
+
+**Single write point:** all durable memory (index, ledger, profile, syllabus, session.md) is written only during session-end consolidation — onboarding ends by invoking it. **Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`) is banned** (constitution rule 3): it is unversioned and ungated, so it silently breaks guarantee 3 and the template/instance model. Observed writing there unprompted in session zero — the ban must stay explicit.
 - Mid-session: agent appends jots to `state/staging/`.
 - `/session-end`: agent proposes template-conformant, append-only edits to topic files (student approves each via the ask-gate), rewrites `session.md`, clears staging, commits `memory:`. Evidence bullets are never rewritten — the history is the record.
 - Spaced repetition (v2): drill selector weights topics by low confidence × stale evidence. No algorithm machinery until real topic files exist.

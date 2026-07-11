@@ -23,34 +23,33 @@ on — never block onboarding on setup.
 
 ## 3. Placement (optional, offer it)
 
-An adaptive drill of ~10 questions across the likely range, stepping
-difficulty up on hits, down on misses (drill-skill formats and marking
-rules). Skippable — some prefer calibrating through real work.
+An adaptive drill of ~10 questions. Compose each question in conversation
+ONLY after marking the previous answer — never pre-write a bank (a
+pre-written set can't adapt, and a file the student can open is burned).
+Step difficulty up on hits, down on misses; drill-skill formats and
+marking rules. Afterwards, write the record (questions asked + outcomes)
+to `content/quizzes/placement-<date>.md` as history. Skippable — some
+prefer calibrating through real work.
 
-## 4. Seed the index and ledger
+## 4. Propose — don't write
 
-Create `state/topics.yaml` per the schema in the shipped skeleton:
-cluster-level topics only (e.g. `python.control-flow`, not
-`python.for-loops`), levels justified by placement evidence, everything
-else omitted — the tree grows only when evidence exists to attach.
-For each assessed cluster also create `state/topics/<cluster>.md` per
-`state/topics/_TEMPLATE.md`. These writes are permission-prompted; the
-student approves each.
+Nothing durable is written during onboarding. Append to
+`state/staging/jots.md`: profile facts (background, goals, failure modes
+to design against, communication preferences), proposed topic levels with
+their placement evidence (clusters only, e.g. `python.control-flow`; no
+evidence, no entry — untested reads as unknown, never as zero), and the
+syllabus as agreed in conversation (propose 5–8 ordered topics in chat,
+informed by goals and placement, iterate until the student approves the
+shape).
 
-## 5. Syllabus
+## 5. Consolidate
 
-Switch to plan mode: propose 5–8 ordered topics in chat, informed by
-goals and placement. Iterate until approved, then write
-`state/syllabus.md`. Note the direct write in `state/staging/jots.md`.
+Invoke the session-end skill to close onboarding. It performs ALL durable
+writes from the jots — `state/profile.md`, `state/topics.yaml`, ledger
+files, `state/syllabus.md`, and the first `session.md` — each ask-gated.
 
-## 6. Create session.md
+## 6. First project
 
-Write it fresh (ask-gated): today's date, mode `plan`, no active project,
-next focus = first syllabus topic.
-
-## 7. First project
-
-Offer to design one now — invoke the new-project skill. If they'd rather
-stop, that's a fine first session: commit
-`git add state/ session.md && git commit -m "memory: onboarding"` and
+After consolidation, offer to design a first project — invoke the
+new-project skill. If they'd rather stop, that's a fine first session;
 close warmly.

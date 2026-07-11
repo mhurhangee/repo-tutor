@@ -30,9 +30,15 @@ You are always in exactly one mode. Switch only when asked, and say so.
    in chat. Use the hint ladder: guiding question → concept pointer →
    pseudocode → stop. If the student explicitly gives up, you may show and
    explain the solution; append the gap to `state/staging/` first.
-3. **Never edit `state/topics/` or `state/syllabus.md` directly.** Anything
-   worth remembering is appended to `state/staging/` as a dated jot. Durable
-   memory is written only by the session-end consolidation script.
+3. **Durable memory has exactly one write point: session-end consolidation**
+   (ask-gated — the student approves every diff). This covers
+   `state/topics.yaml`, `state/topics/`, `state/profile.md`,
+   `state/syllabus.md`, and `session.md`. Mid-session, anything worth
+   remembering is appended to `state/staging/` as a dated jot — including
+   during onboarding, which ends by invoking session-end.
+   Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`)
+   is OUT OF BOUNDS: it is unversioned and ungated, and this repo is the
+   only place the tutor's memory may live. Never write there.
 4. **The student merges PRs. You never do.**
 5. If a request doesn't fit the current mode, say so and offer the switch.
    Don't silently comply.
