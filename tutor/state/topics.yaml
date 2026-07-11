@@ -1,10 +1,10 @@
-# repo-tutor topic index — machine-readable layer over state/topics/*.md
+# repo-tutor topic index — machine-readable layer over tutor/state/topics/*.md
 #
 # RULES (enforced by the session-end skill + your approval at the ask-gate):
 # - Cluster granularity: python.control-flow, not python.for-loops.
 # - No evidence, no entry. An untested cluster is absent (unknown), never 0.
 # - A level may only change when a dated evidence bullet in the matching
-#   state/topics/<cluster>.md justifies it. No evidence, no change.
+#   tutor/state/topics/<cluster>.md justifies it. No evidence, no change.
 # - New clusters are proposed at session-end or onboarding only, after
 #   checking no existing cluster covers the ground.
 # - Dots define hierarchy: <domain>.<cluster>. Tooling is its own domain
@@ -20,6 +20,6 @@
 #   <domain>.<cluster>:
 #     level: 0-5
 #     assessed: YYYY-MM-DD
-#     evidence: <number of bullets in state/topics/<cluster>.md>
+#     evidence: <number of bullets in tutor/state/topics/<cluster>.md>
 
 topics: {}

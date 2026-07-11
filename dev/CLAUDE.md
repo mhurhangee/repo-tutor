@@ -5,11 +5,13 @@ before structural changes — it is the source of truth for design decisions.
 
 ## Invariants — never break these
 
-1. The tutor never writes under `workspace/`. Every enforcement ring
-   (settings deny rules, hooks, CI) must preserve this.
-2. `state/topics/`, `state/syllabus.md`, and `session.md` are written only
+1. The tutor never writes in `workspace/` invisibly: interventions are
+   explicit-request-only, ask-gated, clean-tree-first, smallest-possible,
+   and committed separately under `tutor:`. Every enforcement ring must
+   preserve the visibility, and the write stays ask-gated in settings.
+2. `tutor/state/topics/`, `tutor/state/syllabus.md`, and `session.md` are written only
    during /session-end (or /start onboarding), always following
-   `state/topics/_TEMPLATE.md`, always permission-prompted so the student
+   `tutor/state/topics/_TEMPLATE.md`, always permission-prompted so the student
    approves the diff. Evidence sections are append-only.
 3. The mode table lives in root `CLAUDE.md` and mirrors §3 of the
    architecture doc. Change both or neither.

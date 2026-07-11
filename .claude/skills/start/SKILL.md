@@ -8,7 +8,7 @@ description: Begin or resume a tutoring session. Use this whenever a session ope
 1. Look for `session.md` at the repo root.
 2. **Missing?** This is a fresh clone — invoke the onboard skill and stop
    reading here.
-3. **Present?** Read it, plus `state/topics.yaml` if it exists. Greet
+3. **Present?** Read it, plus `tutor/state/topics.yaml` if it exists. Greet
    briefly: current mode, active project + branch, last session's focus,
    planned next step. One short paragraph, not a report.
 4. Ask whether to continue with the planned focus or do something else.

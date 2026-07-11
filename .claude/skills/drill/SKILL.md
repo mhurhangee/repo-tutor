@@ -9,9 +9,9 @@ Switch to drill mode (announce it).
 
 ## Picking the target
 
-If the user named a topic, use it. Otherwise read `state/topics.yaml` and
+If the user named a topic, use it. Otherwise read `tutor/state/topics.yaml` and
 pick the cluster with the lowest level or stalest `assessed` date; read its
-`state/topics/<cluster>.md` for gaps to target. Say why you picked it.
+`tutor/state/topics/<cluster>.md` for gaps to target. Say why you picked it.
 
 ## Running the drill
 
@@ -32,6 +32,6 @@ pick the cluster with the lowest level or stalest `assessed` date; read its
 ## After
 
 Write the record — questions asked + outcomes, now safe to store — to
-`content/quizzes/<topic>-<date>.md`. Append results to
-`state/staging/jots.md`: topic, score, which concepts missed, hint levels
+`tutor/content/quizzes/<topic>-<date>.md`. Append results to
+`tutor/state/staging/jots.md`: topic, score, which concepts missed, hint levels
 needed. This feeds consolidation — be specific.

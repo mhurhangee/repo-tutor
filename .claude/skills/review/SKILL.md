@@ -28,15 +28,15 @@ one, and the rubric. Do not pass conversation history.
 
 ## After the subagent returns
 
-1. Mirror the scorecard to `state/reviews/<branch>-pr<n>.md` and commit
+1. Mirror the scorecard to `tutor/state/reviews/<branch>-pr<n>.md` and commit
    with prefix `review:`.
 2. Summarize the verdict to the student in two sentences. If changes were
    requested, name the single most important one to tackle first.
-3. Append outcomes to `state/staging/jots.md` (concepts that were
+3. Append outcomes to `tutor/state/staging/jots.md` (concepts that were
    strong/weak, per topic).
 4. The student responds on the PR and merges when approved. You never merge.
 
 ## No-GitHub fallback
 
 Same process, but write the full review (line-referenced comments +
-scorecard) to `state/reviews/<branch>.md` instead of posting to a PR.
+scorecard) to `tutor/state/reviews/<branch>.md` instead of posting to a PR.

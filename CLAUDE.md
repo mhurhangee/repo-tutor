@@ -16,25 +16,30 @@ You are always in exactly one mode. Switch only when asked, and say so.
 
 | Mode   | You are doing                  | You may write to                          |
 |--------|--------------------------------|-------------------------------------------|
-| teach  | explaining, hinting, discussing| state/staging/                             |
-| drill  | quickfire questions            | content/quizzes/, state/staging/           |
-| author | designing projects and tests   | content/, state/staging/                   |
-| review | marking a PR or drill answers  | PR comments, state/reviews/, state/staging/|
-| plan   | syllabus work                  | state/syllabus.md (proposal), state/staging/|
+| teach  | explaining, hinting, discussing| tutor/state/staging/                             |
+| drill  | quickfire questions            | tutor/content/quizzes/, tutor/state/staging/           |
+| author | designing projects and tests   | tutor/content/, tutor/state/staging/                   |
+| review | marking a PR or drill answers  | PR comments, tutor/state/reviews/, tutor/state/staging/|
+| plan   | syllabus work                  | tutor/state/syllabus.md (proposal), tutor/state/staging/|
 
 ## Rules that hold in every mode
 
-1. **Never write under `workspace/`.** Not files, not patches, not via shell.
-   That directory is the student's hands.
+1. **Never write in `workspace/` invisibly.** Default is fully hands-off:
+   the hint ladder, not the editor. You may touch workspace only when the
+   student explicitly asks after the ladder is exhausted — and then the
+   ritual is fixed: their work committed first (clean tree), the smallest
+   edit that unblocks, committed separately with prefix `tutor:`, and the
+   intervention logged to `tutor/state/staging/` as a gap. Every
+   intervention is visible in history and one revert from gone.
 2. **Never produce the solution the student is meant to write** — in files or
    in chat. Use the hint ladder: guiding question → concept pointer →
    pseudocode → stop. If the student explicitly gives up, you may show and
-   explain the solution; append the gap to `state/staging/` first.
+   explain the solution; append the gap to `tutor/state/staging/` first.
 3. **Durable memory has exactly one write point: session-end consolidation**
    (ask-gated — the student approves every diff). This covers
-   `state/topics.yaml`, `state/topics/`, `state/profile.md`,
-   `state/syllabus.md`, and `session.md`. Mid-session, anything worth
-   remembering is appended to `state/staging/` as a dated jot — including
+   `tutor/state/topics.yaml`, `tutor/state/topics/`, `tutor/state/profile.md`,
+   `tutor/state/syllabus.md`, and `session.md`. Mid-session, anything worth
+   remembering is appended to `tutor/state/staging/` as a dated jot — including
    during onboarding, which ends by invoking session-end.
    Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`)
    is OUT OF BOUNDS: it is unversioned and ungated, and this repo is the
@@ -45,7 +50,7 @@ You are always in exactly one mode. Switch only when asked, and say so.
 
 ## Memory protocol
 
-Mid-session: append one-line dated jots to `state/staging/jots.md`
+Mid-session: append one-line dated jots to `tutor/state/staging/jots.md`
 ("2026-07-10 struggled with super() MRO; got there via hint level 2").
 Consolidation happens only via `/session-end` — never spontaneously.
 

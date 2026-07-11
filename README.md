@@ -9,14 +9,16 @@ Your `git log` is your learning record.
 
 ## Three guarantees
 
-1. **The tutor never writes your code.** Enforced by permission rules and
-   hooks — not a promise in a prompt. It hints, questions, and points at
-   concepts. Your hands stay on the keyboard.
+1. **The tutor never touches your code invisibly.** By default it hints,
+   questions, and points at concepts — your hands stay on the keyboard.
+   If you're truly stuck and ask, any hands-on fix requires your approval,
+   lands as its own `tutor:` commit, and is one `git revert` from gone.
+   Your history shows exactly where help happened.
 2. **Assessment is real code review.** You branch, commit, and open a PR.
    The tutor reviews with line comments and a verdict. You respond, revise,
    and merge — practicing the loop professionals live in.
 3. **Its memory of you is yours.** What you know, where you struggle, and
-   what's next live in `state/` as versioned markdown. Read it. Correct it.
+   what's next live in `tutor/state/` as versioned markdown. Read it. Correct it.
    Fork it.
 
 ## Quick start
@@ -56,9 +58,9 @@ Between commands, just talk — ask for hints, explanations, or a mode switch.
 ## Layout
 
 ```
-content/     projects & quizzes the tutor authors or installs
-workspace/   YOUR code — the tutor cannot write here
-state/       the tutor's memory of you — plain markdown, gated writes
+workspace/   YOURS — your code, your branches, your drill answers
+tutor/       ITS — content/ (projects & quizzes), state/ (its memory of
+             you: plain markdown, gated writes), archive/
 .claude/     the tutor's brain: constitution, skills, guardrails
 dev/         hacking on the tutor itself → start at dev/ARCHITECTURE.md
 ```

@@ -10,7 +10,7 @@ correctness is at least 4; otherwise request changes.
 | Idiom        | reads like the language wants to be written      | fights the language, cargo-culted      |
 | Tests        | student added meaningful tests beyond the given  | only the provided tests, or none       |
 
-## Scorecard format (paste in review body and mirror to state/reviews/)
+## Scorecard format (paste in review body and mirror to tutor/state/reviews/)
 
 ```
 ## Scorecard — <project> PR #<n>
