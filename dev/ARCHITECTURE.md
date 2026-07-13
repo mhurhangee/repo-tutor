@@ -20,7 +20,7 @@ A coding tutor that is a git repository. Clone it, run `claude`, and work. The r
 
 ## 2. Repo layout
 
-**Template vs instance:** the public repo is a GitHub template — state zones ship empty, `session.md` doesn't ship at all (`/onboard` creates it, so upstream never conflicts with personal copies). A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/solutions/`, `tutor/archive/`.
+**Template vs instance, and how memory files ship:** the public repo is a GitHub template. Every durable-memory file ships with its *structure* present but *no student data* — a **skeleton** for singletons (`topics.yaml`, `profile.md`, `syllabus.md`: fixed headings/schema, *filled in* at onboarding) or a **template** for collections whose instances aren't known ahead of time (`topics/_TEMPLATE.md`, *copied* to make each `topics/<cluster>.md`). The sole exception is `session.md`, which never ships: its *absence* is how `/start` detects a fresh clone and triggers onboarding. Vocabulary is fixed — skeletons are *filled in*, templates are *copied*, `session.md` and ledger instances are *created*, and everything is *updated/rewritten* thereafter; "stub" is reserved for logic-free code scaffolds in `workspace/`. A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/solutions/`, `tutor/archive/`.
 
 Three zones by **ownership**, plus config:
 
@@ -28,7 +28,7 @@ Three zones by **ownership**, plus config:
 repo-tutor/
 ├── CLAUDE.md                  # constitution
 ├── README.md                  # student-facing front door
-├── session.md                 # NOT shipped — created by /onboard, rewritten by /session-end
+├── session.md                 # NOT shipped — its absence signals a fresh clone; created by /onboard, rewritten by /session-end
 ├── .claude/
 │   ├── settings.json          # Ring 1: permission deny rules
 │   └── skills/                # the entire command surface
@@ -44,9 +44,9 @@ repo-tutor/
 │   │                          #   the one thing git history can't hold
 │   ├── state/                 #   tutor memory — gated writes only
 │   │   ├── topics.yaml        #     numeric index: cluster → level/assessed
-│   │   ├── profile.md         #     who they are (created at onboarding)
-│   │   ├── syllabus.md
-│   │   ├── topics/<cluster>.md#     ledger: confidence / evidence / gaps / next
+│   │   ├── profile.md         #     who they are (skeleton, filled at onboarding)
+│   │   ├── syllabus.md         #     the learning path (skeleton, filled at onboarding)
+│   │   ├── topics/<cluster>.md#     ledger: level / evidence / gaps / next
 │   │   ├── reviews/           #     mirror of PR verdicts + scorecards
 │   │   └── staging/           #     mid-session jots, consumed by /session-end
 │   └── archive/               #   history: drill records, retired solutions
@@ -65,15 +65,15 @@ The agent is always in exactly one mode, recorded in `session.md`. Mode switches
 | drill  | quickfire Q&A                 | tutor/state/staging/; record to tutor/archive/quizzes/ after |
 | author | design projects & tests       | workspace scaffold (rule 1a), tutor/solutions/, tutor/state/staging/ |
 | review | mark a PR / drill answers     | PR comments, tutor/state/reviews/, tutor/state/staging/ |
-| plan   | syllabus work                 | tutor/state/syllabus.md (proposal → student approves), tutor/state/staging/ |
+| plan   | syllabus work                 | tutor/state/staging/ (syllabus lands at session-end) |
 
 Always-on rules (all modes): workspace writes only via rule 1's two cases (ask-gated handout scaffolds; explicit-request stuck interventions — clean tree, smallest edit, `tutor:` commit, logged); never produce the solution the student is meant to write (hint ladder: question → concept → pseudocode → stop) except via an explicit "I give up" flow, which is logged to staging as a gap; remember things by appending to `tutor/state/staging/`, never by editing `tutor/state/topics/` directly; the student merges PRs, never the tutor.
 
 ## 4. Enforcement: four rings
 
-1. **Settings ask/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and all durable memory is ask-gated — the student's approval is the enforcement, consistent across the whole design. Only merging (`git merge` / `gh pr merge`) is hard-denied. Workspace writes are limited to rule 1's two cases; interventions additionally require explicit request, clean tree first, smallest edit, separate `tutor:` commit — a wall hides nothing because nothing happens; a ledger shows everything, and the intervention record feeds consolidation.
+1. **Settings ask/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and all durable memory is ask-gated — the student's approval is the enforcement, consistent across the whole design. Merging (`git merge` / `gh pr merge`) is hard-denied, and the built-in memory directory is both denied by path and disabled at the feature level (`autoMemoryEnabled: false`, §6). Workspace writes are limited to rule 1's two cases; interventions additionally require explicit request, clean tree first, smallest edit, separate `tutor:` commit — a wall hides nothing because nothing happens; a ledger shows everything, and the intervention record feeds consolidation.
 2. **PreToolUse hook** (optional, stage 2+): would catch workspace writes attempted via shell (`echo >`, `sed -i`, heredocs) that path-based deny rules miss. Hooks are local executable code, so this bends the no-runtime principle — add only if real sessions show ring 1 leaking, and keep it to something shell-portable.
-3. **The student as memory gate**: durable memory paths are on the settings `ask` list, so every proposed edit to `tutor/state/topics/`, `tutor/state/syllabus.md`, or `session.md` surfaces as a diff the student approves. Combined with `tutor/state/topics/_TEMPLATE.md` and the session-end skill's append-only evidence rule, this addresses the schema-drift failure mode (the one claude-tutor documents and patched post-hoc) with zero runtime.
+3. **The student as memory gate**: durable memory paths are on the settings `ask` list, so every proposed edit to a durable-memory file (`tutor/state/topics.yaml`, `tutor/state/topics/`, `tutor/state/profile.md`, `tutor/state/syllabus.md`, `session.md`) surfaces as a diff the student approves. Combined with `tutor/state/topics/_TEMPLATE.md` and the session-end skill's append-only evidence rule, this addresses the schema-drift failure mode (the one claude-tutor documents and patched post-hoc) with zero runtime.
 4. **CI (GitHub Actions)** (stage 3): lints topic files against the template, validates pack manifests, commit-prefix conventions, and layout integrity on every push — deterministic enforcement that runs server-side, costing the student no local setup. (Pattern validated by claude-dojo's log-before-tick CI check.)
 
 Commit prefixes: `student:` `tutor:` `quiz:` `review:` `memory:`. Tutor-side commits validated (Ring 2/4); student-side warn-only.
@@ -101,10 +101,10 @@ Three layers, one rule binding the first two:
 - **The binding rule: a level changes only when a new evidence bullet justifies it, and the proposed edit cites the bullet.** A number without a receipt is vibes; the ledger keeps the index honest. No evidence, no entry: untested clusters are absent, never 0.
 - `tutor/state/profile.md` — who the student is, not what they know: background, goals, failure modes to design against, working preferences. Session zero showed onboarding's richest output is non-topic knowledge; without this layer it leaks into ungated stores.
 
-**Single write point:** all durable memory (index, ledger, profile, syllabus, session.md) is written only during session-end consolidation — onboarding ends by invoking it. **Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`) is banned** (constitution rule 3): it is unversioned and ungated, so it silently breaks guarantee 3 and the template/instance model. Observed writing there unprompted in session zero — the ban must stay explicit.
+**Single write point:** all durable memory (index, ledger, profile, syllabus, session.md) is written only during session-end consolidation — onboarding ends by invoking it. **Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`) is banned** (constitution rule 3): it is unversioned and ungated, so it silently breaks guarantee 3 and the template/instance model. Observed writing there unprompted in session zero — the ban must stay explicit. Enforced in `.claude/settings.json`: **`autoMemoryEnabled: false`** disables the auto-memory feature that produced those session-zero writes (primary, and verifiable via `/memory`), with `deny` rules on the path as defense-in-depth against a deliberate `Write`/`Edit`. A shell write (`echo >`) still slips past path-based rules until the Ring 2 hook exists.
 - Mid-session: agent appends jots to `tutor/state/staging/`.
 - `/session-end`: agent proposes template-conformant, append-only edits to topic files (student approves each via the ask-gate), rewrites `session.md`, clears staging, commits `memory:`. Evidence bullets are never rewritten — the history is the record.
-- Spaced repetition (v2): drill selector weights topics by low confidence × stale evidence. No algorithm machinery until real topic files exist.
+- Spaced repetition (v2): drill selector weights topics by low level × stale evidence. No algorithm machinery until real topic files exist.
 
 ## 7. Headless & automation (optional layer)
 
@@ -122,7 +122,7 @@ claude -p "/review PR 4" --allowedTools "Read,Bash(gh pr *),Bash(pytest*)" \
 
 ## 8. Content: bespoke first, packs later
 
-**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in the index and profile: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The student branches; the tutor then writes the scaffold — brief.md, logic-free stubs, failing-for-the-right-reason tests — directly into `workspace/projects/<name>/` under rule 1(a): each file ask-gated, the student approving and making the start commit. No pristine copy is kept — the start commit IS the pristine copy; reset is `git checkout`. Reference solutions go to `tutor/solutions/<name>/`, the one thing git history can't provide (spoilers must exist outside the student's directory). Placement at onboarding seeds initial confidences through the consolidation gate, so authoring is calibrated from session one.
+**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in the index and profile: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The student branches; the tutor then writes the scaffold — brief.md, logic-free stubs, failing-for-the-right-reason tests — directly into `workspace/projects/<name>/` under rule 1(a): each file ask-gated, the student approving and making the start commit. No pristine copy is kept — the start commit IS the pristine copy; reset is `git checkout`. Reference solutions go to `tutor/solutions/<name>/`, the one thing git history can't provide (spoilers must exist outside the student's directory). Placement at onboarding seeds initial levels through the consolidation gate, so authoring is calibrated from session one.
 
 **Packs and registry are a distribution layer (stage 4)** — a way to share briefs that worked, not the primary content source:
 

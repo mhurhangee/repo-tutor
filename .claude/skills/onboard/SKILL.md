@@ -5,8 +5,9 @@ description: First-run onboarding for a fresh clone. Use when session.md does no
 
 # Onboard a new student
 
-Runs once. Ends with: a seeded `tutor/state/topics.yaml`, an approved
-`tutor/state/syllabus.md`, a created `session.md`, and (ideally) a first project.
+Runs once. Ends with the shipped skeletons filled in — `tutor/state/topics.yaml`,
+`tutor/state/profile.md`, `tutor/state/syllabus.md` — a created `session.md`, and
+(ideally) a first project.
 
 ## 1. Who are they
 

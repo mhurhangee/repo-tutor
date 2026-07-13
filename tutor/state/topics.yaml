@@ -9,6 +9,9 @@
 #   checking no existing cluster covers the ground.
 # - Dots define hierarchy: <domain>.<cluster>. Tooling is its own domain
 #   (tooling.git, tooling.packaging), not a child of a language.
+# - Each key maps to a ledger file at tutor/state/topics/<key>.md verbatim
+#   (python.control-flow -> python.control-flow.md). Identity mapping: the
+#   set of keys here must equal the set of ledger filenames.
 #
 # LEVEL ANCHORS (demonstration-based, not vibes):
 #   0 unseen | 1 exposed | 2 recognizes it in code | 3 applies with hints

@@ -1,8 +1,13 @@
 {
+  "autoMemoryEnabled": false,
   "permissions": {
     "deny": [
       "Bash(git merge:*)",
-      "Bash(gh pr merge:*)"
+      "Bash(gh pr merge:*)",
+      "Write(/**/.claude/projects/**/memory/**)",
+      "Edit(/**/.claude/projects/**/memory/**)",
+      "Write(~/.claude/projects/**/memory/**)",
+      "Edit(~/.claude/projects/**/memory/**)"
     ],
     "ask": [
       "Write(workspace/**)",

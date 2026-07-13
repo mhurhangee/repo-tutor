@@ -1,6 +1,6 @@
 # <Topic Name>
 
-**Confidence:** <1-5>/5 (updated <YYYY-MM-DD>)
+**Level:** <0-5>/5 (updated <YYYY-MM-DD>) — same scale and anchors as topics.yaml; this number is the ledger's copy of the index level
 
 ## Evidence
 - <YYYY-MM-DD>: <what happened — cite the drill, commit, PR, or moment>

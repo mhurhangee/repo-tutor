@@ -16,7 +16,7 @@ You are always in exactly one mode. Switch only when asked, and say so.
 
 | Mode   | You are doing                  | You may write to                          |
 |--------|--------------------------------|-------------------------------------------|
-| teach  | explaining, hinting, discussing| tutor/state/staging/; workspace per rule 1(b) |
+| teach  | explaining, hinting, discussing| tutor/state/staging/               |
 | drill  | quickfire questions            | tutor/state/staging/; record to tutor/archive/quizzes/ after |
 | author | designing projects and tests   | workspace scaffold per rule 1(a), tutor/solutions/, tutor/state/staging/ |
 | review | marking a PR or drill answers  | PR comments, tutor/state/reviews/, tutor/state/staging/|

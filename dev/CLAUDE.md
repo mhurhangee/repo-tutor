@@ -10,10 +10,12 @@ before structural changes — it is the source of truth for design decisions.
    Both stay ask-gated in settings; interventions stay clean-tree-first,
    smallest-possible, separately committed under `tutor:`. Reference
    solutions never enter workspace or chat.
-2. `tutor/state/topics/`, `tutor/state/syllabus.md`, and `session.md` are written only
-   during /session-end (or /start onboarding), always following
-   `tutor/state/topics/_TEMPLATE.md`, always permission-prompted so the student
-   approves the diff. Evidence sections are append-only.
+2. All durable-memory files (`tutor/state/topics.yaml`, `tutor/state/topics/`,
+   `tutor/state/profile.md`, `tutor/state/syllabus.md`, `session.md`) are written
+   only during /session-end (or /start onboarding), each conforming to its
+   shipped skeleton — or, for ledger files, to `tutor/state/topics/_TEMPLATE.md`
+   — and always permission-prompted so the student approves the diff. Evidence
+   sections are append-only.
 3. The mode table lives in root `CLAUDE.md` and mirrors §3 of the
    architecture doc. Change both or neither.
 4. No bundled scripts, no runtime dependencies. The tutor is markdown,

@@ -18,14 +18,19 @@ a diff for them to approve. Propose carefully.
    that happened — a drill score, a commit, a PR, a moment in conversation.
    No aspirational entries.
 
-2. For each touched topic, update `tutor/state/topics/<topic-name>.md` following
+2. For each touched topic, update `tutor/state/topics/<cluster>.md` following
    `tutor/state/topics/_TEMPLATE.md` EXACTLY. Non-negotiable rules:
-   - Filename: lowercase, hyphens, no spaces (`context-managers.md`).
-     Check for an existing file before creating a new one.
+   - Filename is the `topics.yaml` cluster key verbatim, plus `.md`:
+     cluster `python.control-flow` → `python.control-flow.md`. The dot
+     separates domain from cluster; hyphens join words within a cluster.
+     Identity mapping, so the file for a key is never ambiguous — check
+     for the existing file before creating a new one.
    - **Evidence is append-only.** Add today's dated bullet at the bottom.
      Never rewrite, summarize, compress, or delete prior bullets — they
      are the historical record.
-   - Confidence (1-5), Gaps, and Next are replaced with current values.
+   - Level (0-5), Gaps, and Next are replaced with current values. The
+     ledger Level must match the `level` you set for this cluster in
+     `tutor/state/topics.yaml` — one number, two places, never divergent.
    - No extra sections, no renamed headings, no editorializing.
 
 3. Update `tutor/state/topics.yaml` (rules and level anchors are in the file's
@@ -37,11 +42,14 @@ a diff for them to approve. Propose carefully.
 
 4. Update `tutor/state/profile.md` if the jots contain profile-grade facts:
    background, goals, failure modes to design against, working
-   preferences. Sections stay stable; entries are dated. Create the file
-   at onboarding. This is who they are — topics are what they know.
+   preferences. It ships as a skeleton — fill it in (drop the placeholder
+   bullets at onboarding). The four sections are FIXED: never
+   add, rename, or remove them. Entries are dated and append-only within a
+   section; supersede a stale fact with a newer dated bullet rather than
+   deleting the old one. This is who they are — topics are what they know.
 
 5. If the jots contain an agreed syllabus (onboarding) or agreed syllabus
-   changes, write `tutor/state/syllabus.md`.
+   changes, fill in `tutor/state/syllabus.md` (it ships as a skeleton).
 
 6. Rewrite `session.md`: last-session date, mode at end, active project,
    next focus (one sentence), topics touched. (Create it if this was the
