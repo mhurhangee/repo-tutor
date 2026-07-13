@@ -11,10 +11,11 @@ Your `git log` is your learning record.
 
 1. **The tutor never touches your code invisibly.** By default it hints,
    questions, and points at concepts — your hands stay on the keyboard.
-   Its only workspace writes are the project handout (scaffolds you
-   approve file-by-file and commit yourself) and, if you're truly stuck
-   and ask, a smallest-possible fix that lands as its own `tutor:` commit
-   — one `git revert` from gone. Your history shows exactly where help
+   Its only workspace writes are the project handout (scaffolds that land
+   as visible commits you review and commit yourself) and, if you're truly
+   stuck and ask, a smallest-possible fix that lands as its own `tutor:`
+   commit — one `git revert` from gone. Nothing is durable until it's a
+   commit you can see in the diff. Your history shows exactly where help
    happened.
 2. **Assessment is real code review.** You branch, commit, and open a PR.
    The tutor reviews with line comments and a verdict. You respond, revise,
@@ -39,14 +40,15 @@ That's it. No install beyond [Claude Code](https://docs.claude.com/en/docs/claud
 | Skill          | What it does                                            |
 |----------------|---------------------------------------------------------|
 | `/start`       | Resume where you left off (runs /onboard on first use)  |
-| `/onboard`     | First-run setup: goals, placement quiz, syllabus         |
+| `/onboard`     | First-run setup: goals, placement quiz, learning path    |
 | `/new-project` | Design a project together, sized to what you know       |
 | `/drill`       | Quickfire questions targeting your weak topics          |
 | `/submit`      | Push your branch and open a PR for tutor review         |
 | `/review`      | Tutor reviews your open PR with line comments           |
 | `/session-end` | Consolidate what happened into the tutor's memory       |
 
-Between commands, just talk — ask for hints, explanations, or a mode switch.
+Between commands, just talk — ask for hints, explanations, or to switch what
+you're doing (Learn / Build / Review).
 
 ## How this differs from similar projects
 
@@ -61,8 +63,9 @@ Between commands, just talk — ask for hints, explanations, or a mode switch.
 
 ```
 workspace/   YOURS — projects (brief, tests, code), your drill answers
+             — you build here, on project branches
 tutor/       ITS — solutions/ (spoilers, kept out of your way), state/
-             (its memory of you: plain markdown, gated writes), archive/
+             (its memory of you: three plain-markdown files), archive/
 .claude/     the tutor's brain: constitution, skills, guardrails
 dev/         hacking on the tutor itself → start at dev/ARCHITECTURE.md
 ```

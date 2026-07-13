@@ -5,23 +5,27 @@ before structural changes — it is the source of truth for design decisions.
 
 ## Invariants — never break these
 
-1. Workspace writes are visible-only and limited to constitution rule 1's
-   two cases (scaffold handout; explicit-request stuck intervention).
-   Both stay ask-gated in settings; interventions stay clean-tree-first,
-   smallest-possible, separately committed under `tutor:`. Reference
-   solutions never enter workspace or chat.
-2. All durable-memory files (`tutor/state/topics.yaml`, `tutor/state/topics/`,
-   `tutor/state/profile.md`, `tutor/state/syllabus.md`, `session.md`) are written
-   only during /session-end (or /start onboarding), each conforming to its
-   shipped skeleton — or, for ledger files, to `tutor/state/topics/_TEMPLATE.md`
-   — and always permission-prompted so the student approves the diff. Evidence
-   sections are append-only.
-3. The mode table lives in root `CLAUDE.md` and mirrors §3 of the
+1. **Zone = branch.** `workspace/**` changes live on the project branch;
+   `tutor/**` and `session.md` live on `main`. Memory never lands on a project
+   branch. Reference solutions never enter `workspace/` or chat. Stuck
+   interventions stay clean-tree-first, smallest-possible, committed under
+   `tutor:` on the branch.
+2. **Approval is the commit diff, not a per-write prompt.** Memory and workspace
+   writes are on `allow` in settings — the tutor writes freely, then the student
+   reviews `git diff` before the commit. Nothing durable exists until it's a
+   visible, revertible commit. (Merges and the built-in memory dir stay hard
+   `deny`.)
+3. **Memory is three prose files** — `session.md`, `tutor/state/profile.md`,
+   `tutor/state/progress.md` — written only at `/session-end` (or `/start`
+   onboarding), as one commit on `main`. No numeric index, no per-cluster
+   ledgers, no template lint (removed as premature over-design; reintroduce only
+   if v2 spaced-repetition needs machine-readable levels).
+4. The activities table lives in root `CLAUDE.md` and mirrors §3 of the
    architecture doc. Change both or neither.
-4. No bundled scripts, no runtime dependencies. The tutor is markdown,
+5. No bundled scripts, no runtime dependencies. The tutor is markdown,
    settings, and (later) hooks/CI only. Anything needing local executable
    code is a design smell — find a prompt, permission, or CI shape first.
-5. Clone → `claude` → `/start` must always work with nothing else installed
+6. Clone → `claude` → `/start` must always work with nothing else installed
    (beyond Claude Code and, for PR flow, `gh`).
 
 ## Working rules

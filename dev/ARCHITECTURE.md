@@ -3,7 +3,7 @@
 A coding tutor that is a git repository. Clone it, run `claude`, and work. The repo holds the tutor's rules, its memory of you, your projects, and your assessment history. No install, no server, no database.
 
 **The three guarantees** (everything else serves these):
-1. **The tutor never touches the student's code invisibly.** Hands-off by default (hint ladder); interventions only at explicit request, ask-gated, committed separately under `tutor:` — visible in history, one revert from gone.
+1. **The tutor never touches the student's code invisibly.** Hands-off by default (hint ladder); interventions only at explicit request, clean-tree-first, committed separately under `tutor:` — visible in history, one revert from gone.
 2. **Assessment is real code review.** You submit PRs; the tutor reviews with line comments; you respond and revise; you merge.
 3. **The tutor's memory of you is yours.** Plain markdown, versioned, human-editable. `git log` is the learning record.
 
@@ -20,7 +20,7 @@ A coding tutor that is a git repository. Clone it, run `claude`, and work. The r
 
 ## 2. Repo layout
 
-**Template vs instance, and how memory files ship:** the public repo is a GitHub template. Every durable-memory file ships with its *structure* present but *no student data* — a **skeleton** for singletons (`topics.yaml`, `profile.md`, `syllabus.md`: fixed headings/schema, *filled in* at onboarding) or a **template** for collections whose instances aren't known ahead of time (`topics/_TEMPLATE.md`, *copied* to make each `topics/<cluster>.md`). The sole exception is `session.md`, which never ships: its *absence* is how `/start` detects a fresh clone and triggers onboarding. Vocabulary is fixed — skeletons are *filled in*, templates are *copied*, `session.md` and ledger instances are *created*, and everything is *updated/rewritten* thereafter; "stub" is reserved for logic-free code scaffolds in `workspace/`. A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/solutions/`, `tutor/archive/`.
+**Template vs instance, and how memory files ship:** the public repo is a GitHub template. The two durable-memory files ship as **skeletons** — `profile.md` and `progress.md` carry their headings but no student data, *filled in* at onboarding. `session.md` never ships: its *absence* is how `/start` detects a fresh clone and triggers onboarding ("stub" stays reserved for logic-free code scaffolds in `workspace/`). A student's clone is their private instance; pulling upstream merges cleanly because upstream only touches `.claude/`, `dev/`, and root docs, while instances only touch `tutor/state/`, `workspace/`, `tutor/solutions/`, `tutor/archive/`.
 
 Three zones by **ownership**, plus config:
 
@@ -30,53 +30,50 @@ repo-tutor/
 ├── README.md                  # student-facing front door
 ├── session.md                 # NOT shipped — its absence signals a fresh clone; created by /onboard, rewritten by /session-end
 ├── .claude/
-│   ├── settings.json          # Ring 1: permission deny rules
+│   ├── settings.json          # allow/deny rules (§4)
 │   └── skills/                # the entire command surface
 │       ├── start/ onboard/ new-project/ session-end/ drill/ submit/ review/ teach/
 │       └── (each: SKILL.md + optional references/)
-├── workspace/                 # ZONE: student work — tutor writes only via
-│   │                          #   rule 1's two cases (always ask-gated)
-│   ├── projects/<name>/       #   scaffolded via rule 1(a); brief, tests,
-│   │                          #   code, data all live here — one directory
+├── workspace/                 # ZONE: student work — lives on project branches
+│   ├── projects/<name>/       #   scaffold + brief + tests + code + data,
+│   │                          #   one directory; committed as visible diffs
 │   └── quickfire/             #   student's drill answers
-├── tutor/                     # ZONE: everything tutor-owned, one namespace
+├── tutor/                     # ZONE: tutor-owned — lives on main
 │   ├── solutions/<name>/      #   reference solutions & answer keys —
 │   │                          #   the one thing git history can't hold
-│   ├── state/                 #   tutor memory — gated writes only
-│   │   ├── topics.yaml        #     numeric index: cluster → level/assessed
+│   ├── state/                 #   tutor memory — three prose files + scratch
 │   │   ├── profile.md         #     who they are (skeleton, filled at onboarding)
-│   │   ├── syllabus.md         #     the learning path (skeleton, filled at onboarding)
-│   │   ├── topics/<cluster>.md#     ledger: level / evidence / gaps / next
+│   │   ├── progress.md        #     what they know: Solid / Shaky / Next up
 │   │   ├── reviews/           #     mirror of PR verdicts + scorecards
 │   │   └── staging/           #     mid-session jots, consumed by /session-end
 │   └── archive/               #   history: drill records, retired solutions
 ├── dev/                       # working ON the tutor (this doc, dev/CLAUDE.md)
 ```
 
-Why zones: ownership is answered by the first path segment — `workspace/` is the student, `tutor/` is the tutor — and the guardrails reduce to two short rules: *workspace writes only via rule 1's two cases* and *durable memory only via session-end consolidation*. The student's daily loop lives entirely in `workspace/projects/<name>/`; `tutor/` is backstage.
+Why zones: ownership is answered by the first path segment — `workspace/` is the student, `tutor/` is the tutor — and the two zones map onto git branches (§4): `workspace/**` on `project/*`, `tutor/**` + `session.md` on `main`. The student's daily loop lives entirely in `workspace/projects/<name>/`; `tutor/` is backstage.
 
-## 3. Modes
+## 3. Activities
 
-The agent is always in exactly one mode, recorded in `session.md`. Mode switches are explicit in conversation and persisted at `/session-end`.
+The agent is always in exactly one activity, recorded in `session.md`. Switches are explicit in conversation. Collapsed from the original five modes — the mode system's main job was gating writes, and that job now belongs to the branch model (§4), so the surface simplifies to three verbs the student can actually hold in their head.
 
-| Mode | Purpose | May write to |
+| Activity | Purpose | Commits land on |
 |---|---|---|
-| teach  | explain, hint, discuss        | tutor/state/staging/ |
-| drill  | quickfire Q&A                 | tutor/state/staging/; record to tutor/archive/quizzes/ after |
-| author | design projects & tests       | workspace scaffold (rule 1a), tutor/solutions/, tutor/state/staging/ |
-| review | mark a PR / drill answers     | PR comments, tutor/state/reviews/, tutor/state/staging/ |
-| plan   | syllabus work                 | tutor/state/staging/ (syllabus lands at session-end) |
+| Learn  | explain, hint, drill, plan          | main |
+| Build  | design a project, work on it        | project branch |
+| Review | mark a PR (independent blind agent) | main + PR |
 
-Always-on rules (all modes): workspace writes only via rule 1's two cases (ask-gated handout scaffolds; explicit-request stuck interventions — clean tree, smallest edit, `tutor:` commit, logged); never produce the solution the student is meant to write (hint ladder: question → concept → pseudocode → stop) except via an explicit "I give up" flow, which is logged to staging as a gap; remember things by appending to `tutor/state/staging/`, never by editing `tutor/state/topics/` directly; the student merges PRs, never the tutor.
+Always-on rules (all activities): **zone = branch** — `workspace/**` changes on the project branch, `tutor/**` + `session.md` on `main`, memory never on a project branch; stuck interventions only on explicit request (clean tree, smallest edit, `tutor:` commit on the branch, logged); never produce the solution the student is meant to write (hint ladder: question → concept → pseudocode → stop) except via an explicit "I give up" flow, logged to staging as a gap; remember things by appending to `tutor/state/staging/`, consolidated only at `/session-end`; the student merges PRs, never the tutor.
 
-## 4. Enforcement: four rings
+## 4. Enforcement: the branch model + three rings
 
-1. **Settings ask/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and all durable memory is ask-gated — the student's approval is the enforcement, consistent across the whole design. Merging (`git merge` / `gh pr merge`) is hard-denied, and the built-in memory directory is both denied by path and disabled at the feature level (`autoMemoryEnabled: false`, §6). Workspace writes are limited to rule 1's two cases; interventions additionally require explicit request, clean tree first, smallest edit, separate `tutor:` commit — a wall hides nothing because nothing happens; a ledger shows everything, and the intervention record feeds consolidation.
-2. **PreToolUse hook** (optional, stage 2+): would catch workspace writes attempted via shell (`echo >`, `sed -i`, heredocs) that path-based deny rules miss. Hooks are local executable code, so this bends the no-runtime principle — add only if real sessions show ring 1 leaking, and keep it to something shell-portable.
-3. **The student as memory gate**: durable memory paths are on the settings `ask` list, so every proposed edit to a durable-memory file (`tutor/state/topics.yaml`, `tutor/state/topics/`, `tutor/state/profile.md`, `tutor/state/syllabus.md`, `session.md`) surfaces as a diff the student approves. Combined with `tutor/state/topics/_TEMPLATE.md` and the session-end skill's append-only evidence rule, this addresses the schema-drift failure mode (the one claude-tutor documents and patched post-hoc) with zero runtime.
-4. **CI (GitHub Actions)** (stage 3): lints topic files against the template, validates pack manifests, commit-prefix conventions, and layout integrity on every push — deterministic enforcement that runs server-side, costing the student no local setup. (Pattern validated by claude-dojo's log-before-tick CI check.)
+The load-bearing enforcement is the **branch model**, not per-write prompts. `workspace/**` changes live on `project/<name>` branches; `tutor/**` and `session.md` live on `main`; the tutor drives the switching. Session zero proved that a prefix taxonomy without a branch model collapses — memory commits piled onto the student's feature branch and poisoned the PR diff. Zone = branch fixes that at the root: the two ownership zones are physically separated by git, and a `project/*` branch that only ever touches `workspace/**` cannot carry memory into a PR.
 
-Commit prefixes: `student:` `tutor:` `quiz:` `review:` `memory:`. Tutor-side commits validated (Ring 2/4); student-side warn-only.
+1. **Settings allow/deny rules** (`.claude/settings.json`): Write/Edit on `workspace/**` and `tutor/**` are on `allow` — the tutor writes freely and the **student's approval is reviewing the `git diff` before the commit**, not a dialog per file. This is the deliberate reversal of the original ask-gate, which fatigued the student with ~7 forced prompts per session-end and could not be cleared by accept-all (an `ask` rule outranks it by design). Merging (`git merge` / `gh pr merge`) stays hard-denied; the built-in memory directory stays denied by path and disabled at the feature level (`autoMemoryEnabled: false`, §6).
+2. **The commit diff as the gate**: nothing durable exists until it is a commit. Every memory write, scaffold, and intervention lands as a visible, revertible commit the student sees. Approval moved from the write to the commit — same oversight, one review instead of many prompts.
+3. **PreToolUse hook** (optional, stage 2+): would catch workspace writes attempted via shell that path rules miss, and could enforce zone = branch mechanically (reject a `tutor/` write while on a `project/*` branch). Hooks are local executable code, so this bends the no-runtime principle — add only if real sessions show leakage.
+4. **CI (GitHub Actions)** (stage 3): on every push, reject a `project/*` diff that touches `tutor/` (the mechanical backstop for zone = branch), validate commit-prefix conventions and layout integrity — deterministic, server-side, zero local setup. (Pattern validated by claude-dojo's log-before-tick CI check.)
+
+Commit prefixes: `student:` and `tutor:` are the two the student sees — `tutor:` tags both stuck-intervention edits on the branch and authoring commits (e.g. reference solutions) on `main`; `memory:` and `review:` are internal tutor commits on `main`. The numeric-level ledger system and its template-lint were removed as premature (§6).
 
 ## 5. The assessment loop
 
@@ -94,17 +91,18 @@ student: respond in thread, push fixes, loop → student merges
 
 ## 6. Memory
 
-Three layers, one rule binding the first two:
+Three prose files, all on `main`, written only at session-end:
 
-- `tutor/state/topics.yaml` — the numeric index. Dynamic cluster-granularity tree (`python.control-flow`, `tooling.git`); demonstration-anchored levels 0–5 (4 requires a reviewed PR, 5 requires teaching it back); schema and anchors live as comments in the shipped skeleton. Machine-readable: drill targeting, project calibration, and any future gamification read this, not prose.
-- `tutor/state/topics/<cluster>.md` — the evidence ledger: dated append-only bullets, gaps, next. Student-editable by design; corrections are signal.
-- **The binding rule: a level changes only when a new evidence bullet justifies it, and the proposed edit cites the bullet.** A number without a receipt is vibes; the ledger keeps the index honest. No evidence, no entry: untested clusters are absent, never 0.
-- `tutor/state/profile.md` — who the student is, not what they know: background, goals, failure modes to design against, working preferences. Session zero showed onboarding's richest output is non-topic knowledge; without this layer it leaks into ungated stores.
+- `session.md` — where the student is: date, active project + its branch, next focus, topics touched. Its *absence* is how `/start` detects a fresh clone.
+- `tutor/state/profile.md` — who the student is, not what they know: background, goals, failure modes to design against, working preferences. Four fixed sections, dated append-only bullets. Session zero showed onboarding's richest output is non-topic knowledge.
+- `tutor/state/progress.md` — what the student knows, as plain prose in three sections: **Solid** (shown independently, clearest signal a reviewed PR), **Shaky** (the growth edge), **Next up** (the ordered path). No scores, no schema; every line traces to something that happened.
 
-**Single write point:** all durable memory (index, ledger, profile, syllabus, session.md) is written only during session-end consolidation — onboarding ends by invoking it. **Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`) is banned** (constitution rule 3): it is unversioned and ungated, so it silently breaks guarantee 3 and the template/instance model. Observed writing there unprompted in session zero — the ban must stay explicit. Enforced in `.claude/settings.json`: **`autoMemoryEnabled: false`** disables the auto-memory feature that produced those session-zero writes (primary, and verifiable via `/memory`), with `deny` rules on the path as defense-in-depth against a deliberate `Write`/`Edit`. A shell write (`echo >`) still slips past path-based rules until the Ring 2 hook exists.
+**What was removed and why:** the original design had a numeric index (`topics.yaml`, levels 0–5), per-cluster evidence ledgers (`topics/<cluster>.md`), a syllabus file, and a template-lint discipline. It was a cathedral for a tool that had run one project — the leveling machinery was the source of session-end ceremony and the prompt fatigue. Cut to three prose files. The numeric/machine-readable layer returns in v2 **only if** spaced repetition needs it — not before there's data to feed it.
+
+**Single write point:** all durable memory is written only during session-end consolidation (onboarding ends by invoking it), as one reviewable commit — the student approves the diff, not each file. **Claude Code's built-in memory directory (`~/.claude/projects/**/memory/`) is banned** (constitution rule 4): unversioned and ungated, it silently breaks guarantee 3. Observed writing there unprompted in session zero — the ban stays explicit. Enforced by **`autoMemoryEnabled: false`** (disables the feature, verifiable via `/memory`) plus `deny` rules on the path as defense-in-depth. A shell write still slips past path rules until the stage-2 hook exists.
 - Mid-session: agent appends jots to `tutor/state/staging/`.
-- `/session-end`: agent proposes template-conformant, append-only edits to topic files (student approves each via the ask-gate), rewrites `session.md`, clears staging, commits `memory:`. Evidence bullets are never rewritten — the history is the record.
-- Spaced repetition (v2): drill selector weights topics by low level × stale evidence. No algorithm machinery until real topic files exist.
+- `/session-end`: agent switches to `main`, writes the three files, rewrites `session.md`, clears staging, shows the diff, commits `memory:`, and switches back to the student's branch.
+- Spaced repetition (v2): drill selector weights topics by staleness. No algorithm machinery until real progress data exists.
 
 ## 7. Headless & automation (optional layer)
 
@@ -122,12 +120,12 @@ claude -p "/review PR 4" --allowedTools "Read,Bash(gh pr *),Bash(pytest*)" \
 
 ## 8. Content: bespoke first, packs later
 
-**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in the index and profile: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The student branches; the tutor then writes the scaffold — brief.md, logic-free stubs, failing-for-the-right-reason tests — directly into `workspace/projects/<name>/` under rule 1(a): each file ask-gated, the student approving and making the start commit. No pristine copy is kept — the start commit IS the pristine copy; reset is `git checkout`. Reference solutions go to `tutor/solutions/<name>/`, the one thing git history can't provide (spoilers must exist outside the student's directory). Placement at onboarding seeds initial levels through the consolidation gate, so authoring is calibrated from session one.
+**Bespoke authoring is the core (v1).** The `/new-project` skill designs projects *with* the student, grounded in `progress.md` and `profile.md`: solid concepts as foundation, growth-edge concepts as the deliberate focus, at most one untouched concept per project. The tutor drives the git setup (§4): on clean `main`, write and commit the reference solution to `tutor/solutions/<name>/`, then branch `project/<name>` and write the scaffold — brief.md (with a milestone-1 implementation order, the warm-up on-ramp), logic-free stubs, failing-for-the-right-reason tests — into `workspace/projects/<name>/` as visible commits the student reviews and start-commits themselves. No pristine copy is kept — the start commit IS the pristine copy; reset is `git checkout`. The solution stays on `main`, never on the branch or in chat. Placement at onboarding seeds `progress.md` so authoring is calibrated from session one.
 
 **Packs and registry are a distribution layer (stage 4)** — a way to share briefs that worked, not the primary content source:
 
 - Registry = second repo; each pack = directory with `manifest.json` (name, type, topics, difficulty) + payload; `index.json` for search.
-- Install = an `/add-pack` skill: fetch the pack, write its scaffold into `workspace/` via the same rule-1(a) handout as bespoke projects, solution into `tutor/solutions/`. Community contribution = PR to registry; pack CI runs tests against the bundled reference solution.
+- Install = an `/add-pack` skill: fetch the pack, write its scaffold into `workspace/` via the same scaffold handout as bespoke projects (new-project §4), solution into `tutor/solutions/`. Community contribution = PR to registry; pack CI runs tests against the bundled reference solution.
 - Solutions ship in packs, honor system (a self-directed learner cheats only themselves). Revisit if this ever becomes classroom-grade.
 - Skills are packs too: swap in a harsher `review` rubric the same way. Customization = edit files or install packs.
 - Distribution note: plugin-marketplace packaging (as claude-tutor uses) doesn't fit the core product — a plugin can't ship the workspace you live in. The repo *is* the product; a plugin form could later exist for the skills alone.
@@ -147,16 +145,16 @@ Lead the README with the three guarantees; they are what nothing else has.
 
 Each stage must survive a real study session before the next starts.
 
-1. **Skeleton + constitution** — this tree, CLAUDE.md, settings deny rules, skills including /new-project and placement. First project authored live with the student. *Proves: modes, hint ladder, and bespoke authoring hold.*
-2. **Memory gate** — ask-gate + template discipline exercised over real sessions; add CI topic-lint early if drift appears. *Proves: memory survives sessions without drift.*
+1. **Skeleton + constitution** — this tree, CLAUDE.md, settings rules, skills including /new-project and placement. First project authored live with the student. *Proves: activities, hint ladder, and bespoke authoring hold.* (Session zero ran here and forced the branch-model + commit-gate + memory-simplification redesign now in §3/§4/§6.)
+2. **Memory + branch discipline** — zone = branch and the commit-diff gate exercised over real sessions; add the stage-2 hook / CI zone check if leakage appears. *Proves: memory and PRs stay clean without per-write prompts.*
 3. **Assessment loop** — /submit + /review with gh, marker subagent, reviews mirror, GitHub Action. *Proves: the PR protocol is pleasant enough to use.*
 4. **Drills + packs** — topic-weighted /drill, registry, /add-pack.
 5. **v2** — reverse-review, spaced repetition, `tutor` wrapper, help-adjusted marking.
 
 ## 11. Risks
 
-- **Tutor drift in long sessions** — the known failure mode of every tutor agent. Mitigations: short constitution, mode confirmation at /start, hooks. Measure before adding machinery.
+- **Tutor drift in long sessions** — the known failure mode of every tutor agent. Mitigations: short constitution, activity confirmation at /start, hooks. Measure before adding machinery.
 - **Marking inconsistency** — rubric lives as a reference file inside the review skill; every verdict mirrored to tutor/state/reviews/ so marker behavior can be diffed over time; skill evals once transcripts exist.
 - **Hook friction** — over-aggressive Ring 2 makes sessions miserable. Log rejections, tune.
 - **Solo-PR setup friction** — needs a GitHub remote + gh auth; a /doctor check inside /start should verify and explain. Local fallback exists.
-- **Scope magnetism** — the registry, dashboards, and spaced repetition all attract effort. The mode table + memory gate + PR loop are the product. Everything else is a pack.
+- **Scope magnetism** — the registry, dashboards, and spaced repetition all attract effort. The activities table + branch model + commit gate + PR loop are the product. Everything else is a pack.

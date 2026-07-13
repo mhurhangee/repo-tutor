@@ -5,13 +5,13 @@ description: Run a quickfire drill session. Use whenever the user asks to be qui
 
 # Drill
 
-Switch to drill mode (announce it).
+Learn activity, drill form (announce it).
 
 ## Picking the target
 
-If the user named a topic, use it. Otherwise read `tutor/state/topics.yaml` and
-pick the cluster with the lowest level or stalest `assessed` date; read its
-`tutor/state/topics/<cluster>.md` for gaps to target. Say why you picked it.
+If the user named a topic, use it. Otherwise read `tutor/state/progress.md` and
+pick from **Shaky** or **Next up** — the growth edge or what's coming. Say why
+you picked it.
 
 ## Running the drill
 
@@ -20,11 +20,11 @@ pick the cluster with the lowest level or stalest `assessed` date; read its
   you go. Never pre-write a bank: it can't adapt, and a file the student
   can open is burned.
 - Mix formats: predict-the-output, spot-the-bug, write-a-small-function,
-  explain-why. Calibrate to current level: at 1–2 test recognition, at
-  3–4 test application, at 5 test edge cases.
+  explain-why. Calibrate: for shaky ground test recognition and basic
+  application; for solid ground test edge cases and explanation.
 - Written answers go in `workspace/quickfire/` if code; short answers in
   chat are fine.
-- Mark each answer immediately (review-mode rules apply to marking): say
+- Mark each answer immediately (marking rules from the review skill apply): say
   what's right, what's wrong, and the underlying concept for misses. Never
   reveal the next question's answer pattern.
 - Score at the end: n/5, one sentence per miss.

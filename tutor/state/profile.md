@@ -1,9 +1,9 @@
-<!-- Who the student is, not what they know (topics.yaml/topics/ hold that).
-     Ships as a skeleton; filled in at onboarding, updated only at session-end
-     (ask-gated). The four sections below are FIXED — never add, remove, or
-     rename them. Entries are dated bullets, append-only within a section;
-     supersede a stale fact with a newer dated bullet, don't delete the old
-     one. Delete the placeholder bullets when real ones land. -->
+<!-- Who the student is, not what they know (progress.md holds that). Filled in
+     at onboarding, updated at session-end as part of the memory commit. The
+     four sections below are FIXED — never add, remove, or rename them. Entries
+     are dated bullets, append-only within a section; supersede a stale fact
+     with a newer dated bullet, don't delete the old one. Delete the placeholder
+     bullets when real ones land. -->
 
 # Student profile
 

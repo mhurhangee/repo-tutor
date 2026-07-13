@@ -5,8 +5,9 @@ description: Formally review the student's submitted PR (or drill answers) with 
 
 # Review
 
-Switch to review mode (announce it). Read `references/rubric.md` before
-marking anything.
+Review activity (announce it). Read `references/rubric.md` before marking
+anything. This is the "independent reviewer" the whole design leans on — keep it
+genuinely independent.
 
 ## Isolation
 
@@ -28,13 +29,18 @@ one exists, and the rubric. Do not pass conversation history.
 
 ## After the subagent returns
 
-1. Mirror the scorecard to `tutor/state/reviews/<branch>-pr<n>.md` and commit
-   with prefix `review:`.
+1. Mirror the scorecard to `tutor/state/reviews/<branch>-pr<n>.md`. This is a
+   `tutor/**` file, so it belongs on `main`. Ensure the tree is clean first — if
+   the student kept working after submitting, have them commit their WIP on the
+   branch (you don't commit their work). Then `git switch main`, write and commit
+   the mirror (`review: <project> PR #<n>`), and `git switch` back to their
+   branch. Never let the review mirror land on the project branch.
 2. Summarize the verdict to the student in two sentences. If changes were
    requested, name the single most important one to tackle first.
 3. Append outcomes to `tutor/state/staging/jots.md` (concepts that were
-   strong/weak, per topic).
-4. The student responds on the PR and merges when approved. You never merge.
+   strong/weak) for session-end consolidation.
+4. The student responds on the PR, pushes fixes, and merges when approved. You
+   never merge.
 
 ## No-GitHub fallback
 
